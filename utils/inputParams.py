@@ -1,11 +1,11 @@
 input_params = {
     "main_filters": {
-        "seller_type": {
+        "sellerType": {
             "prompt": "Seller type [private, dealer, any]: ",
             "valid_inputs": ["private", "dealer", "any"],
             "singular": True,
         },
-        "fuel_type": {
+        "fuelType": {
             "prompt": "Fuel type [diesel, petrol, electric, hybrid, any]: ",
             "valid_inputs": ["diesel", "petrol", "electric", "hybrid", "any"],
             "singular": False,
@@ -15,7 +15,7 @@ input_params = {
             "valid_inputs": ["manual", "automatic", "any"],
             "singular": True,
         },
-        "body_type": {
+        "bodyType": {
             "prompt": "Body type [convertible, coupe, saloon, hatchback, estate, mpv, suv, van, pick up, any]: ",
             "valid_inputs": [
                 "convertible",
@@ -55,6 +55,11 @@ input_params = {
                 "other",
                 "any",
             ],
+            "singular": False,
+        },
+        "country": {
+            "prompt": "Current country of registration [ireland, uk, northern ireland, any]: ",
+            "valid_inputs": ["ireland", "uk", "northern ireland", "any"],
             "singular": False,
         },
         "verifications": {
