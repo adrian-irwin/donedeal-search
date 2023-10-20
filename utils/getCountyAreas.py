@@ -9,7 +9,7 @@ BASE_URL = "https://www.donedeal.ie/ddapi/v1/areas/"
 def get_county_areas(county) -> dict:
     response = requests.get(BASE_URL + county)
     if response.ok is False:
-        print(f"Error: {response.status_code}. {response.reason}")
+        print(f"Error: {response.status_code}, {response.reason}")
         return
     response = response.json()
     return response
