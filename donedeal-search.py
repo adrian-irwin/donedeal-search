@@ -11,7 +11,7 @@ def get_input(info: dict) -> list[str]:
     output = []
     user_input = input(f"{info['prompt']}")
 
-    user_input = [input.strip() for input in user_input.split(",")]
+    user_input = [input.strip().lower() for input in user_input.split(",")]
 
     if info["singular"] is True:
         user_input = user_input[:1]
