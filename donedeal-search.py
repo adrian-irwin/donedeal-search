@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 from utils.inputParams import input_params
@@ -6,26 +7,44 @@ from utils.inputParams import input_params
 BASE_URL: str = "https://www.donedeal.ie/ddapi/v1/search"
 
 
-def get_input(prompt: str, valid_inputs: dict) -> str:
-    user_input = input(prompt)
+def get_input(info: dict) -> list[str]:
+    output = []
+    user_input = input(f"{info['prompt']}")
 
-    if valid_inputs == [] or valid_inputs == [""]:
-        return ""
-    elif user_input.lower() in valid_inputs:
-        return user_input
-    else:
-        return get_input(prompt, valid_inputs)
+    user_input = [input.strip() for input in user_input.split(",")]
+
+    if info["singular"] is True:
+        user_input = user_input[:1]
+
+    for value in user_input:
+        if value == "" or value == "any":
+            continue
+        elif value in info["valid_inputs"]:
+            output.append(value)
+        else:
+            print(f"Invalid input: {value}, Try again.")
+            output += get_input(info)
+
+    return output
 
 
 def get_user_inputs() -> dict:
-    user_inputs = {}
+    user_inputs = {"main_filters": {}, "make_model_filters": {}, "range_filters": {}}
 
-    print("Enter your search criteria below. Leave blank to ignore.")
+    print(
+        f"\nEnter your search criteria below.\nSome fields can take multiple values, to do this separate them by a comma.\nLeave blank to ignore."
+    )
 
-    for input_param, value in input_params.items():
-        user_input = get_input(value["prompt"], value["valid_inputs"])
-        if user_input != "" and user_input != "any":
-            user_inputs[input_param] = user_input
+    for section in input_params.keys():
+        temp = {}
+        print(f"\n{section.upper()}\n")
+
+        for param, paramInfo in input_params[section].items():
+            user_input = get_input(paramInfo)
+            if user_input != []:
+                temp[param] = user_input
+
+        user_inputs[section] = temp
 
     return user_inputs
 
