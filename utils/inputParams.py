@@ -172,7 +172,8 @@ input_params = {
         },
         "min_price": {
             "prompt": "Minimum price (€) [0-70000]: ",
-            "valid_inputs": [str(price) for price in range(0, 71_000, 1_000)] + ["any"],
+            "valid_inputs": [str(price) for price in range(0, 71_000, 500)]
+            + ["any", "100"],
             "singular": True,
         },
         "max_price": {
@@ -182,34 +183,39 @@ input_params = {
         },
         "min_mileage": {
             "prompt": "Minimum mileage (km) [0-400000]: ",
-            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 10_000)]
+            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 1_000)]
             + ["any"],
             "singular": True,
         },
         "max_mileage": {
             "prompt": "Maximum mileage (km) [0-400000]: ",
-            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 10_000)]
+            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 1_000)]
             + ["any"],
             "singular": True,
         },
-        "min_engine_size": {
+        "min_engine": {
             "prompt": "Minimum engine size (cc) [1000-7000]: ",
-            "valid_inputs": [str(size) for size in range(1_000, 7_500, 500)] + ["any"],
+            "valid_inputs": [str(size) for size in range(1_000, 7_500, 100)] + ["any"],
             "singular": True,
         },
-        "max_engine_size": {
+        "max_engine": {
             "prompt": "Maximum engine size (cc) [1000-7000]: ",
-            "valid_inputs": [str(size) for size in range(1_000, 7_500, 500)] + ["any"],
+            "valid_inputs": [str(size) for size in range(1_000, 7_500, 100)] + ["any"],
             "singular": True,
         },
-        "min_engine_power": {
+        "min_enginePower": {
             "prompt": "Minimum engine power (hp) [50-500]: ",
             "valid_inputs": [str(power) for power in range(50, 550, 50)] + ["any"],
             "singular": True,
         },
-        "max_engine_power": {
+        "max_enginePower": {
             "prompt": "Maximum engine power (hp) [50-500]: ",
             "valid_inputs": [str(power) for power in range(50, 550, 50)] + ["any"],
+            "singular": True,
+        },
+        "min_batteryRange": {
+            "prompt": "Minimum battery range (km) [100-500]: ",
+            "valid_inputs": [str(range) for range in range(100, 501, 100)] + ["any"],
             "singular": True,
         },
         "min_seats": {
@@ -222,8 +228,8 @@ input_params = {
             "valid_inputs": [str(seats) for seats in range(2, 9)] + ["any"],
             "singular": True,
         },
-        "max_road_tax": {
-            "prompt": "Maximum road tax (€) [0-1000]: ",
+        "max_roadTax": {
+            "prompt": "Maximum road tax (€) [150-1000]: ",
             "valid_inputs": [
                 "150",
                 "200",
@@ -236,45 +242,33 @@ input_params = {
             ],
             "singular": True,
         },
-        "min_valid_nct": {
+        "min_NCTExpiry": {
             "prompt": "Minimum valid NCT (months) [3, 6, 9, 12, 18]: ",
             "valid_inputs": ["3", "6", "9", "12", "18", "any"],
             "singular": True,
         },
-        "max_prev_owners": {
+        "max_owners": {
             "prompt": "Maximum previous owners [0-5]: ",
             "valid_inputs": [str(num) for num in range(0, 6)] + ["any"],
             "singular": True,
         },
+        "min_warrantyDuration": {
+            "prompt": "Minimum warranty duration (months) [3, 6, 9, 12, 24, 36, 48, 60, 72, 84, 96, any]: ",
+            "valid_inputs": [
+                "3",
+                "6",
+                "9",
+                "12",
+                "24",
+                "36",
+                "48",
+                "60",
+                "72",
+                "84",
+                "96",
+                "any",
+            ],
+            "singular": True,
+        },
     },
 }
-
-# {
-#     "main_filters": {
-#         "seller_type": ["private", "dealer"],
-#         "fuel_type": ["petrol", "electric"],
-#         "transmission": ["manual"],
-#         "body_type": ["coupe", "saloon", "suv", "mpv", "hatchback"],
-#         "numDoors": [""],
-#         "colour": ["black", "blue"],
-#         "verifications": [""],
-#     },
-#     "make_model_filters": {"make": [""], "model": [""]},
-#     "range_filters": {
-#         "min_year": ["1980"],
-#         "max_year": ["2024"],
-#         "min_price": ["0"],
-#         "max_price": ["70000"],
-#         "min_mileage": [""],
-#         "max_mileage": [""],
-#         "min_engine_size": [""],
-#         "max_engine_size": [""],
-#         "min_engine_power": [""],
-#         "max_engine_power": [""],
-#         "min_seats": [""],
-#         "max_seats": [""],
-#         "max_road_tax": [""],
-#         "min_valid_nct": [""],
-#         "max_prev_owners": [""],
-#     },
-# }
