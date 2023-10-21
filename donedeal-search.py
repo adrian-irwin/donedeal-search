@@ -26,8 +26,17 @@ def get_input(inputName: str, info: dict) -> list:
                 value = " ".join(
                     value.split(" ")[0] + value.split(" ")[1].capitalize()
                 ).replace(" ", "")
+            elif value == "uk":
+                value = value.upper()
+            elif (
+                value == "mercedes"
+                or value == "mercedes benz"
+                or value == "mercedes-benz"
+            ):
+                value = "Mercedes-Benz"
+            else:
+                value = value.capitalize()
             output.append(value)
-        # TODO: there are more cases that need to be handled here
         else:
             print(f"Invalid input: {value}, Try again.")
             output += get_input(inputName, info)
