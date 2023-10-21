@@ -119,6 +119,8 @@ input_params = {
                 "mg",
                 "maserati",
                 "mazda",
+                "mercedes",
+                "mercedes benz",
                 "mercedes-benz",
                 "mini",
                 "mitsubishi",
