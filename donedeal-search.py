@@ -66,6 +66,17 @@ def get_user_inputs() -> dict:
                 continue
 
             user_input = get_input(param, paramInfo)
+
+            if user_input == []:
+                continue
+
+            if param.startswith("max_") and param.replace("max_", "min_") in temp:
+                while user_input != [] and user_input[0] < temp[param.replace("max_", "min_")][0]:
+                    print(
+                        f"Invalid input: {user_input[0]} is less than {temp[param.replace('max_', 'min_')][0]}, Try again."
+                    )
+                    user_input = get_input(param, paramInfo)
+
             if user_input != []:
                 temp[param] = user_input
 
