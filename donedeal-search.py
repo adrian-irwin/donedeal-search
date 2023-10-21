@@ -56,6 +56,15 @@ def get_user_inputs() -> dict:
         print(f"\n{section.upper()}\n")
 
         for param, paramInfo in input_params[section].items():
+            if param == "model" and "make" not in temp:
+                continue
+            elif (
+                param == "min_batteryRange"
+                and "fuelType" in user_inputs["main_filters"]
+                and "Electric" not in user_inputs["main_filters"]["fuelType"]
+            ):
+                continue
+
             user_input = get_input(param, paramInfo)
             if user_input != []:
                 temp[param] = user_input
