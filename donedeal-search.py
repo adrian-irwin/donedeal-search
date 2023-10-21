@@ -56,6 +56,66 @@ def get_user_inputs() -> dict:
     return user_inputs
 
 
+def parse_main_filters(main_filters: dict) -> list:
+    parsed = []
+    for main_filter, main_filter_value in main_filters.items():
+        parsed.append({"name": main_filter, "values": main_filter_value})
+    return parsed
+
+
+def parse_make_model_filters(make_model_filters: dict) -> list:
+    if make_model_filters["make"] == "":
+        return []
+    parsed = [{"make": make_model_filters["make"][0], "model": "", "trim": ""}]
+
+    for make_model_filter, make_model_filter_value in make_model_filters.items():
+        if make_model_filter != "make":
+            for model in make_model_filter_value:
+                if parsed[0]["model"] == "":
+                    parsed[0]["model"] = model
+                else:
+                    parsed.append(
+                        {
+                            "make": parsed[0]["make"],
+                            "model": model,
+                            "trim": "",
+                        }
+                    )
+
+    return parsed
+
+
+def parse_range_filters(range_filters: dict) -> list:
+    parsed = []
+    for range_filter, range_filter_value in range_filters.items():
+        trimmed_filter = range_filter.replace("min_", "").replace("max_", "")
+        # check all current filters in ranges, if filter already exists, add value to it otherwise create new filter
+        for filter in parsed:
+            if filter["name"] == trimmed_filter:
+                if range_filter.startswith("min_"):
+                    filter["from"] = range_filter_value[0]
+                elif range_filter.startswith("max_"):
+                    filter["to"] = range_filter_value[0]
+                break
+        else:
+            if range_filter.startswith("min_"):
+                parsed.append(
+                    {
+                        "name": trimmed_filter,
+                        "from": range_filter_value[0],
+                    }
+                )
+            elif range_filter.startswith("max_"):
+                parsed.append(
+                    {
+                        "name": trimmed_filter,
+                        "to": range_filter_value[0],
+                    }
+                )
+
+    return parsed
+
+
 def get_body(user_inputs: dict) -> dict:
     body: dict = {
         "sections": ["cars"],
@@ -69,56 +129,16 @@ def get_body(user_inputs: dict) -> dict:
         ],
     }
 
-    main_filters = user_inputs["main_filters"]
-    make_model_filters = user_inputs["make_model_filters"]
-    range_filters = user_inputs["range_filters"]
+    if "main_filters" in user_inputs:
+        body["filters"] = parse_main_filters(user_inputs["main_filters"])
 
-    for main_filter, main_filter_value in main_filters.items():
-        body["filters"].append({"name": main_filter, "values": main_filter_value})
+    if "make_model_filters" in user_inputs:
+        body["makeModelFilters"] = parse_make_model_filters(
+            user_inputs["make_model_filters"]
+        )
 
-    for make_model_filter, make_model_filter_value in make_model_filters.items():
-        if make_model_filter == "make":
-            body["makeModelFilters"].append(
-                {"make": make_model_filter_value, "model": "", "trim": ""}
-            )
-        elif make_model_filter == "model":
-            if body["makeModelFilters"][0]["model"] == "":
-                body["makeModelFilters"][0]["model"] = make_model_filter_value
-            else:
-                body["makeModelFilters"].append(
-                    {
-                        "make": body["makeModelFilters"][0]["make"],
-                        "model": make_model_filter_value,
-                        "trim": "",
-                    }
-                )
-
-    range_filter: str
-    for range_filter, range_filter_value in range_filters.items():
-        trimmed_filter = range_filter.replace("min_", "").replace("max_", "")
-        # check all current filters in ranges, if filter already exists, add value to it otherwise create new filter
-        for filter in body["ranges"]:
-            if filter["name"] == trimmed_filter:
-                if range_filter.startswith("min_"):
-                    filter["from"] = range_filter_value[0]
-                elif range_filter.startswith("max_"):
-                    filter["to"] = range_filter_value[0]
-                break
-        else:
-            if range_filter.startswith("min_"):
-                body["ranges"].append(
-                    {
-                        "name": trimmed_filter,
-                        "from": range_filter_value[0],
-                    }
-                )
-            elif range_filter.startswith("max_"):
-                body["ranges"].append(
-                    {
-                        "name": trimmed_filter,
-                        "to": range_filter_value[0],
-                    }
-                )
+    if "range_filters" in user_inputs:
+        body["ranges"] = parse_range_filters(user_inputs["range_filters"])
 
     return body
 
