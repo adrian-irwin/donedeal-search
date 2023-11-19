@@ -71,7 +71,10 @@ def get_user_inputs() -> dict:
                 continue
 
             if param.startswith("max_") and param.replace("max_", "min_") in temp:
-                while user_input != [] and user_input[0] < temp[param.replace("max_", "min_")][0]:
+                while (
+                    user_input != []
+                    and user_input[0] < temp[param.replace("max_", "min_")][0]
+                ):
                     print(
                         f"Invalid input: {user_input[0]} is less than {temp[param.replace('max_', 'min_')][0]}, Try again."
                     )
@@ -93,7 +96,7 @@ def parse_main_filters(main_filters: dict) -> list:
 
 
 def parse_make_model_filters(make_model_filters: dict) -> list:
-    if make_model_filters["make"] == "":
+    if "make" not in make_model_filters or make_model_filters["make"] == "":
         return []
     parsed = [{"make": make_model_filters["make"][0], "model": "", "trim": ""}]
 
@@ -156,6 +159,7 @@ def get_body(user_inputs: dict) -> dict:
         "ranges": [
             {"name": "year", "from": "", "to": ""},
         ],
+        "paging": {"from": 0, "pageSize": 30},
     }
 
     if "main_filters" in user_inputs:
@@ -179,55 +183,24 @@ def get_search_results(body: dict) -> dict:
     return response.json()
 
 
+def get_all_ads(body: dict) -> list:
+    all_ads = []
+    print("Getting page 0, starting at 0")
+    initial_results = get_search_results(body)
+    all_ads += initial_results["ads"]
+    total_pages = initial_results["paging"]["totalPages"]
+    for page in range(1, total_pages):
+        body["paging"]["from"] = page * 30
+        print(f"Getting page {page}, starting at {body['paging']['from']}")
+        all_ads += get_search_results(body)["ads"]
+    print("Done!")
+    print(f"Total ads: {len(all_ads)}")
+    return all_ads
+
+
 if __name__ == "__main__":
-    # user_inputs = get_user_inputs()
-    # print(user_inputs)
+    user_inputs = get_user_inputs()
 
-    test_user_inputs = {
-        "main_filters": {
-            "sellerType": ["pro"],
-            "fuelType": ["petrol", "electric", "hybrid"],
-            "transmission": ["manual"],
-            "bodyType": [
-                "convertible",
-                "coupe",
-                "saloon",
-                "hatchback",
-                "estate",
-                "mpv",
-                "suv",
-                "van",
-            ],
-            "numDoors": ["3", "4", "5", "6"],
-            "colour": ["black", "blue", "white", "red", "green", "orange"],
-            "country": ["ireland", "uk"],
-            "verifications": [
-                "manufacturerApproved",
-                "greenlightVerified",
-                "trustedDealer",
-            ],
-        },
-        "make_model_filters": {"make": ["hyundai"]},
-        "range_filters": {
-            "min_year": ["2020"],
-            "max_year": ["2024"],
-            "min_price": ["10000"],
-            "max_price": ["70000"],
-            "min_mileage": ["0"],
-            "max_mileage": ["400000"],
-            "min_engine": ["1000"],
-            "max_engine": ["7000"],
-            "min_enginePower": ["100"],
-            "max_enginePower": ["500"],
-            "min_batteryRange": ["100"],
-            "min_seats": ["2"],
-            "max_seats": ["8"],
-            "max_roadTax": ["1000"],
-            "min_NCTExpiry": ["3"],
-            "max_owners": ["5"],
-            "min_warrantyDuration": ["3"],
-        },
-    }
+    body = get_body(user_inputs)
 
-    body = get_body(test_user_inputs)
-    print(body)
+    ads = get_all_ads(body)
