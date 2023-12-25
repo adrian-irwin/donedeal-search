@@ -7,11 +7,11 @@ from utils.inputParams import input_params
 BASE_URL: str = "https://www.donedeal.ie/ddapi/v1/search"
 
 
-def get_input(inputName: str, info: dict) -> list:
+def get_input(input_name: str, info: dict) -> list:
     output = []
     user_input = input(f"{info['prompt']}")
 
-    user_input = [input.strip().lower() for input in user_input.split(",")]
+    user_input = [usr_input.strip().lower() for usr_input in user_input.split(",")]
 
     if info["singular"] is True:
         user_input = user_input[:1]
@@ -20,9 +20,9 @@ def get_input(inputName: str, info: dict) -> list:
         if value == "" or value == "any":
             continue
         elif value in info["valid_inputs"]:
-            if inputName == "sellerType" and value == "dealer":
+            if input_name == "sellerType" and value == "dealer":
                 value = "pro"
-            elif inputName == "verifications":
+            elif input_name == "verifications":
                 value = " ".join(
                     value.split(" ")[0] + value.split(" ")[1].capitalize()
                 ).replace(" ", "")
@@ -39,7 +39,7 @@ def get_input(inputName: str, info: dict) -> list:
             output.append(value)
         else:
             print(f"Invalid input: {value}, Try again.")
-            output += get_input(inputName, info)
+            output += get_input(input_name, info)
 
     return output
 
@@ -48,8 +48,14 @@ def get_user_inputs() -> dict:
     user_inputs = {"main_filters": {}, "make_model_filters": {}, "range_filters": {}}
 
     print(
-        f"\nEnter your search criteria below.\nSome fields can take multiple values, to do this separate them by a comma.\nLeave blank to ignore."
+        f"\nEnter your search criteria below.\nSome fields can take multiple values, to do this separate them by a "
+        f"comma.\nLeave blank to ignore."
     )
+
+    # section one: seller type, fuel type, transmission, body type, numDoors, colour, verifications
+    # section two: geo filter (aka area/county)
+    # section three: make, model
+    # section four: ranges (year, price, mileage, engine size, engine power, seats, road tax, valid nct, previous owners)
 
     for section in input_params.keys():
         temp = {}
@@ -67,7 +73,7 @@ def get_user_inputs() -> dict:
 
             user_input = get_input(param, paramInfo)
 
-            if user_input == []:
+            if not user_input:
                 continue
 
             if param.startswith("max_") and param.replace("max_", "min_") in temp:
@@ -80,7 +86,7 @@ def get_user_inputs() -> dict:
                     )
                     user_input = get_input(param, paramInfo)
 
-            if user_input != []:
+            if user_input:
                 temp[param] = user_input
 
         user_inputs[section] = temp
@@ -183,10 +189,61 @@ def get_search_results(body: dict) -> dict:
     return response.json()
 
 
+def parse_ads(ads: list) -> list:
+    parsed_ads = []
+    for ad in ads:
+        parsed_ad = {
+            "id": ad["id"],
+            "header": ad["header"],
+            "currency": ad["currency"],
+            "price": ad["price"],
+            "county": ad["county"],
+            "section": ad["section"]["name"],
+            "url": ad["friendlyUrl"],
+            "photoCount": ad["mediaCount"],
+            "attributes": ad["displayAttributes"],
+            "publishDate": ad["publishDate"],
+            "photos": {},
+            "keyInfo": ad["keyInfo"],
+            "photosAlt": ad["imageAlt"],
+            "dealer": (
+                {
+                    "id": ad["dealer"]["id"],
+                    "name": ad["dealer"]["name"],
+                    "longitude": ad["dealer"]["longitude"]
+                    if "longitude" in ad["dealer"]
+                    else "",
+                    "latitude": ad["dealer"]["latitude"]
+                    if "latitude" in ad["dealer"]
+                    else "",
+                    "address": ad["dealer"]["enhancedAddress"],
+                    "webURL": ad["dealer"]["websiteURL"]
+                    if "websiteURL" in ad["dealer"]
+                    else "",
+                    "donedealURL": "https://www.donedeal.ie"
+                    + ad["dealer"]["showroomUrl"],
+                    "logo": ad["dealer"]["logo"]["small"],
+                }
+                if "dealer" in ad
+                else {}
+            ),
+        }
+        for photo in ad["photos"]:
+            parsed_ad["photos"][photo["id"]] = photo["large"]
+
+        parsed_ads.append(parsed_ad)
+    return parsed_ads
+
+
 def get_all_ads(body: dict) -> list:
     all_ads = []
-    print("Getting page 0, starting at 0")
     initial_results = get_search_results(body)
+
+    if "ads" not in initial_results:
+        print("No ads found.")
+        return []
+
+    print("Getting page 0, starting at 0")
     all_ads += initial_results["ads"]
     total_pages = initial_results["paging"]["totalPages"]
     for page in range(1, total_pages):
@@ -199,8 +256,14 @@ def get_all_ads(body: dict) -> list:
 
 
 if __name__ == "__main__":
+    output_file = input("Enter output file name: ")
+    print(f"Output file: {output_file}\n")
+
     user_inputs = get_user_inputs()
 
     body = get_body(user_inputs)
 
     ads = get_all_ads(body)
+
+    with open(output_file, "w") as f:
+        json.dump(ads, f, indent=4)
