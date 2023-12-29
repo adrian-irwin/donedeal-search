@@ -190,48 +190,63 @@ def get_search_results(body: dict) -> dict:
 
 
 def parse_ads(ads: list) -> list:
+    # make, model, colour, year, mileage, fuelType, transmission, bodyType, engineSize, enginePower, seats, doors, countryOfReg, owners, roadTax, county, countyTown, currency, price, dealer.name, friendlyUrl, photos.large
     parsed_ads = []
+
+    ad: dict
     for ad in ads:
+        attributes = {item["name"]: item["value"] for item in ad["displayAttributes"]}
+
         parsed_ad = {
-            "id": ad["id"],
-            "header": ad["header"],
-            "currency": ad["currency"],
-            "price": ad["price"],
-            "county": ad["county"],
-            "section": ad["section"]["name"],
-            "url": ad["friendlyUrl"],
-            "photoCount": ad["mediaCount"],
-            "attributes": ad["displayAttributes"],
-            "publishDate": ad["publishDate"],
-            "photos": {},
-            "keyInfo": ad["keyInfo"],
-            "photosAlt": ad["imageAlt"],
-            "dealer": (
-                {
-                    "id": ad["dealer"]["id"],
-                    "name": ad["dealer"]["name"],
-                    "longitude": ad["dealer"]["longitude"]
-                    if "longitude" in ad["dealer"]
-                    else "",
-                    "latitude": ad["dealer"]["latitude"]
-                    if "latitude" in ad["dealer"]
-                    else "",
-                    "address": ad["dealer"]["enhancedAddress"],
-                    "webURL": ad["dealer"]["websiteURL"]
-                    if "websiteURL" in ad["dealer"]
-                    else "",
-                    "donedealURL": "https://www.donedeal.ie"
-                    + ad["dealer"]["showroomUrl"],
-                    "logo": ad["dealer"]["logo"]["small"],
-                }
+            "make": attributes.get("make"),
+            "model": attributes.get("model"),
+            "colour": attributes.get("colour"),
+            "year": attributes.get("year"),
+            "mileage": attributes.get("mileage"),
+            "fuelType": attributes.get("fuelType"),
+            "transmission": attributes.get("transmission"),
+            "bodyType": attributes.get("bodyType"),
+            "engine": attributes.get("engine"),
+            "enginePower": attributes.get("enginePower"),
+            "seats": attributes.get("seats"),
+            "numDoors": attributes.get("numDoors"),
+            "country": attributes.get("country"),
+            "owners": attributes.get("owners"),
+            "roadTax": attributes.get("roadTax"),
+            "county": ad.get("county"),
+            "countyTown": ad.get("countyTown"),
+            "currency": ad.get("currency"),
+            "publishDate": ad.get("publishDate"),
+            "price": ad.get("price"),
+            "friendlyUrl": ad.get("friendlyUrl"),
+            "header": ad.get("header"),
+            "photoUrl": ad["photos"][0].get("large") if "photos" in ad else None,
+            "photoAlt": ad.get("imageAlt"),
+            "photoCount": ad.get("mediaCount"),
+            "dealerName": ad["dealer"].get("name") if "dealer" in ad else None,
+            "dealerDonedealUrl": (
+                "https://www.donedeal.ie" + ad["dealer"].get("showroomUrl")
                 if "dealer" in ad
-                else {}
+                else None
             ),
+            # "dealerLogoSmall": (
+            #     ad["dealer"]["logo"].get("small")
+            #     if "dealer" in ad
+            #     else None
+            #     if "logo" in ad["dealer"]
+            #     else None
+            # ),
+            # "dealerLogoMedium": (
+            #     ad["dealer"]["logo"].get("medium")
+            #     if "dealer" in ad
+            #     else None
+            #     if "logo" in ad["dealer"]
+            #     else None
+            # ),
         }
-        for photo in ad["photos"]:
-            parsed_ad["photos"][photo["id"]] = photo["large"]
 
         parsed_ads.append(parsed_ad)
+
     return parsed_ads
 
 
@@ -244,12 +259,16 @@ def get_all_ads(body: dict) -> list:
         return []
 
     print("Getting page 0, starting at 0")
-    all_ads += initial_results["ads"]
+
+    all_ads += parse_ads(initial_results["ads"])
+
     total_pages = initial_results["paging"]["totalPages"]
+
     for page in range(1, total_pages):
         body["paging"]["from"] = page * 30
         print(f"Getting page {page}, starting at {body['paging']['from']}")
-        all_ads += get_search_results(body)["ads"]
+        all_ads += parse_ads(get_search_results(body)["ads"])
+
     print("Done!")
     print(f"Total ads: {len(all_ads)}")
     return all_ads
@@ -260,6 +279,8 @@ if __name__ == "__main__":
     print(f"Output file: {output_file}\n")
 
     user_inputs = get_user_inputs()
+
+    # print(user_inputs)
 
     body = get_body(user_inputs)
 
