@@ -1,0 +1,5 @@
+{
+    "eslint.options": {
+        "configFile": "./frontend/vscode.eslintrc.json"
+    }
+}
