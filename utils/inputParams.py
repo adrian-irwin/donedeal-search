@@ -173,25 +173,25 @@ input_params = {
             "singular": True,
         },
         "min_price": {
-            "prompt": "Minimum price (€) [0-70000]: ",
-            "valid_inputs": [str(price) for price in range(0, 71_000, 500)]
+            "prompt": "Minimum price (€) [0-100000]: ",
+            "valid_inputs": [str(price) for price in range(0, 110_000, 500)]
             + ["any", "100"],
             "singular": True,
         },
         "max_price": {
-            "prompt": "Maximum price (€) [0-70000]: ",
-            "valid_inputs": [str(price) for price in range(0, 71_000, 1_000)] + ["any"],
+            "prompt": "Maximum price (€) [0-100000]: ",
+            "valid_inputs": [str(price) for price in range(0, 110_000, 1_000)] + ["any"],
             "singular": True,
         },
         "min_mileage": {
-            "prompt": "Minimum mileage (km) [0-400000]: ",
-            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 1_000)]
+            "prompt": "Minimum mileage (km) [0-500000]: ",
+            "valid_inputs": [str(mileage) for mileage in range(0, 510_000, 1_000)]
             + ["any"],
             "singular": True,
         },
         "max_mileage": {
-            "prompt": "Maximum mileage (km) [0-400000]: ",
-            "valid_inputs": [str(mileage) for mileage in range(0, 410_000, 1_000)]
+            "prompt": "Maximum mileage (km) [0-500000]: ",
+            "valid_inputs": [str(mileage) for mileage in range(0, 510_000, 1_000)]
             + ["any"],
             "singular": True,
         },

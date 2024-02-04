@@ -76,13 +76,18 @@ def get_user_inputs() -> dict:
             if not user_input:
                 continue
 
+            if param.startswith("min_") or param.startswith("max_"):
+                if len(user_input) == 1:
+                    user_input = user_input[0]
+
             if param.startswith("max_") and param.replace("max_", "min_") in temp:
+
                 while (
                     user_input != []
-                    and user_input[0] < temp[param.replace("max_", "min_")][0]
+                    and user_input < temp[param.replace("max_", "min_")]
                 ):
                     print(
-                        f"Invalid input: {user_input[0]} is less than {temp[param.replace('max_', 'min_')][0]}, Try again."
+                        f"Invalid input: {user_input} is less than {temp[param.replace('max_', 'min_')]}, Try again."
                     )
                     user_input = get_input(param, paramInfo)
 
@@ -131,23 +136,23 @@ def parse_range_filters(range_filters: dict) -> list:
         for filter in parsed:
             if filter["name"] == trimmed_filter:
                 if range_filter.startswith("min_"):
-                    filter["from"] = range_filter_value[0]
+                    filter["from"] = range_filter_value
                 elif range_filter.startswith("max_"):
-                    filter["to"] = range_filter_value[0]
+                    filter["to"] = range_filter_value
                 break
         else:
             if range_filter.startswith("min_"):
                 parsed.append(
                     {
                         "name": trimmed_filter,
-                        "from": range_filter_value[0],
+                        "from": range_filter_value,
                     }
                 )
             elif range_filter.startswith("max_"):
                 parsed.append(
                     {
                         "name": trimmed_filter,
-                        "to": range_filter_value[0],
+                        "to": range_filter_value,
                     }
                 )
 
